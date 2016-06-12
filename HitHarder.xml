@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Component xmlns="http://www.red5studios.com/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.red5studios.com/ ../../../../schemas/component.xsd">
+	<Info
+		title="HitHarder"
+		author="afterfriday"
+		description="HitHarder"
+		url="http://www.red5studios.com/"
+		uiVersion="1000"
+	/>
+	<Events>
+		<Event name="ON_COMPONENT_LOAD"						bind="OnComponentLoad" />
+		<Event name="ON_PLAYER_READY"						bind="OnPlayerReady"/>
+		<Event name="ON_HIT_TARGET_CONFIRM"					bind="OnHit" />
+		<Event name="MY_HUD_SHOW"							bind="OnHudShow"/>
+		<Event name="ON_CHARACTER_VITALS_CHANGED"			bind="OnEntityVitalsChanged"/>
+		<Event name="ON_DEPLOYABLE_VITALS_CHANGED"			bind="OnEntityVitalsChanged"/>
+		<Event name="ON_VEHICLE_VITALS_CHANGED"				bind="OnEntityVitalsChanged"/>
+		<Event name="ON_CARRYABLE_OBJECT_VITALS_CHANGED"	bind="OnEntityVitalsChanged"/>
+		<Event name="ON_SQUAD_ROSTER_UPDATE"				bind="OnTeamUpdate"/>
+		<Event name="ON_SQUAD_JOIN"							bind="OnTeamUpdate"/>
+		<Event name="ON_TEAM_CHANGED"						bind="OnTeamUpdate"/>
+		<Event name="ON_ENTER_ZONE"							bind="OnEnterZone" />
+		<Event name="ON_SPAWN"								bind="OnSpawn"/>
+	</Events>
+	<Textures>
+		<Texture name="CD_Trash" src="./images/trash.png" premultiplied="false" />
+		<Texture name="CD_Multi" src="./images/multi.png" premultiplied="false" />
+		<Texture name="CD_Single" src="./images/single.png" premultiplied="false" />
+		<Texture name="CD_Star" src="./images/star.png" premultiplied="false" />
+		<Texture name="CD_Add" src="./images/add.png" premultiplied="false" />
+		<Texture name="CD_Close" src="./images/close.png" premultiplied="false" />
+		
+		<Texture name="BAR_Aluminium" src="./statusbar/Aluminium.png" premultiplied="false" />
+		<Texture name="BAR_BantoBar" src="./statusbar/BantoBar.png" premultiplied="false" />
+		<Texture name="BAR_Glaze2" src="./statusbar/Glaze2.png" premultiplied="false" />
+		<Texture name="BAR_Gloss" src="./statusbar/Gloss.png" premultiplied="false" />
+		<Texture name="BAR_Graphite" src="./statusbar/Graphite.png" premultiplied="false" />
+		<Texture name="BAR_Grid" src="./statusbar/Grid.png" premultiplied="false" />
+		<Texture name="BAR_Healbot" src="./statusbar/Healbot.png" premultiplied="false" />
+		<Texture name="BAR_LiteStep" src="./statusbar/LiteStep.png" premultiplied="false" />
+		<Texture name="BAR_Minimalist" src="./statusbar/Minimalist.png" premultiplied="false" />
+		<Texture name="BAR_normTex" src="./statusbar/normTex.png" premultiplied="false" />
+		<Texture name="BAR_Otravi" src="./statusbar/Otravi.png" premultiplied="false" />
+		<Texture name="BAR_Perl" src="./statusbar/Perl.png" premultiplied="false" />
+		<Texture name="BAR_Round" src="./statusbar/Round.png" premultiplied="false" />
+		<Texture name="BAR_Smooth" src="./statusbar/Smooth.png" premultiplied="false" />
+	</Textures>
+	<BluePrints>
+
+		<Blueprint name="MainBackDrop" >
+			<Border name="border" dimensions="dock:fill" class="PanelBackDrop"/>
+		</Blueprint>
+
+		<BluePrint name="Data_Group" instantiable="true">
+			<Group name="dmg_bar_grp" dimensions="left:1; right:-1; top:0; bottom:100%-1" style="clip-children:true;alpha:0.7">
+				<StillArt name="dmg_bar" dimensions="left:0; right:100%; top:0; height:100%" style="texture:BAR_Smooth; eatsmice:false;"/>
+				<StillArt name="dmg_bar_lt" dimensions="left:100%-1; right:100%; top:0; height:50%" style="texture:gradients; region:white_down; exposure:1.0; tint:FFFFFF"/>
+				<StillArt name="dmg_bar_lt2" dimensions="left:100%-1; right:100%; bottom:100%; height:50%" style="texture:gradients; region:white_up; exposure:1.0; tint:FFFFFF"/>
+			</Group>
+			<Group name="name_text" dimensions="left:2; width:100%-2; height:100%" style="clip-children:true">
+				<Text name="text_shadow" key="{name_text}" dimensions="top:1;left:1;right:100%+1;bottom:100%+1" style="halign:left; valign:center; font:UbuntuBold_8; tint:000000"/>
+				<Text name="text" key="{name_text}" dimensions="dock:fill" style="halign:left; valign:center; font:UbuntuBold_8; drop-shadow:1;"/>
+			</Group>
+			<Group name="damage_text" dimensions="left:2; right:100%-2; height:100%" style="clip-children:true">
+				<Text name="text_shadow" key="{damage_text}" dimensions="top:1;left:1;right:100%+1;bottom:100%+1" style="halign:right; valign:center; font:UbuntuBold_8; tint:000000"/>
+				<Text name="text" key="{damage_text}" dimensions="dock:fill" style="halign:right; valign:center; font:UbuntuBold_8; drop-shadow:1;"/>
+			</Group>
+			<Group dimensions="left:0; right:100%; top:100%-1; height:1" style="alpha:0.3">
+				<StillArt name="top_grad" dimensions="left:30; width:70%-30; bottom:50%; height:1" style="texture:gradients; region:white_right; tint:#FFFFFF"/>
+				<StillArt name="top_solid" dimensions="right:100%; width:30%; bottom:50%; height:1" style="texture:colors; region:white; tint:#FFFFFF"/>
+			</Group>		
+			<FocusBox name="focus" dimensions="dock:fill"/>
+		</BluePrint>
+		<BluePrint name="Text_Group" instantiable="true">
+			<Text name="Text" dimensions="left:0; right:100%; height:22; top:0" style="font:UbuntuBold_8; halign:left; valign:center"/>
+		</BluePrint>
+		<BluePrint name="OptionsChoicePrint" instantiable="true">
+			<Group name="ChoiceGroup" dimensions="left:5; right:28; height:23; top:0"/>
+			<Text name="Text" dimensions="left:25; right:25; height:0; top:50%" style="font:UbuntuBold_8; halign:left; valign:center; eatsmice:false">
+				<FocusBox name="Focus" dimensions="left:-5; right:100%+5; top:-8; bottom:15" style="eatsmice:true; cursor:sys_hand"/>
+			</Text>
+			<FocusBox name="delete" dimensions="left:100%-23; right:100%; top:0; bottom:100%" class="ui_button">
+				<Border dimensions="dock:fill" style="tint:000000; alpha:0.5; padding:5"/>
+				<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:8; height:8" style="texture:CD_Close; eatsmice:false"/>
+			</FocusBox>
+		</BluePrint>		
+		<BluePrint name="CB_Group" instantiable="true">
+			<Text name="Text" dimensions="left:0; right:100%; height:22; top:0" style="font:UbuntuBold_8; halign:center; valign:center"/>
+		</BluePrint>
+		<BluePrint name="Tooltip_list" instantiable="true">
+			<Text name="Text_left" dimensions="left:0; right:100%; height:20; top:0" style="font:UbuntuBold_8; halign:left; valign:center"/>
+			<Text name="Text_right" dimensions="left:0; right:100%; height:20; top:0" style="font:UbuntuBold_8; halign:right; valign:center"/>
+		</BluePrint>
+		<BluePrint name="Tooltip" instantiable="true">
+			<Border dimensions="dock:fill" class="RoundedBorders" style="tint:#000000; padding:6;" />
+			<Group name="title" dimensions="width:100%;top:0;height:20">
+				<Text name="text" key="{Damage Type}" dimensions="dock:fill" style="font:UbuntuBold_8; halign:center; valign:center; drop-shadow:0; color:PanelTitle"/>
+			</Group>
+			<StillArt name="divider_left" dimensions="left:0; right:50%; top:22; height:1" style="texture:gradients; region:white_right; alpha:0.6; tint:FFFFFF"/>
+			<StillArt name="divider_right" dimensions="left:50%; right:100%; top:22; height:1" style="texture:gradients; region:white_left; alpha:0.6; tint:FFFFFF"/>
+			<Group name="list_group" dimensions="width:100%;top:24;bottom:100%">
+				<ListLayout name="list" dimensions="dock:fill"/>
+			</Group>
+		</BluePrint>
+		<BluePrint name="DPS_Bar" instantiable="true">
+			<StillArt name="select" dimensions="dock:fill" style="texture:colors; region:white; tint:#FFFFFF; alpha:0.2"/>
+			<StillArt name="bar" dimensions="dock:fill" style="texture:colors; region:white; tint:#FFFFFF; alpha:0.8"/>
+			<FocusBox name="focus" dimensions="dock:fill"/>
+		</BluePrint>
+	</BluePrints>	
+	<Frames>
+		<PanelFrame name="Tooltip_Frame" dimensions="left:0; top:0; width:20; height:20;" permanent="true"/>
+		<PanelFrame name="DPS_Frame" dimensions="left:20; top:20; width:300; height:30;" permanent="true">
+			<Children>
+				<Group name="group" dimensions="dock:fill">
+					<StillArt dimensions="dock:fill" style="texture:colors; region:white; tint:#000000; alpha:0.3"/>
+					<ListLayout name="DPS_list" dimensions="height:100%;right:100%;width:_" style="horizontal:true; hpadding:0"/>
+					<Group name="text_group" dimensions="center-y:0; right:0; width:10; height:10">
+						<Text name="text" key="{}" dimensions="dock:fill" style="font:UbuntuBold_8; halign:right; valign:center;"/>
+					</Group>
+					<Group name="select_group" dimensions="left:20; bottom:0; width:10; height:20">
+						<Text name="text" key="{}" dimensions="dock:fill" style="font:UbuntuBold_8; halign:left; valign:center;"/>
+					</Group>
+				</Group>
+			</Children>
+		</PanelFrame>
+		<PanelFrame name="Summary_frame" dimensions="center-y:50%; right:50%+300; width:450; height:341" visible="false" permanent="true">
+			<Children>
+				<Group id="Summary_frame_title" dimensions="top:0; bottom:23; center-x:50%; width:100%">
+					<Border name="border" dimensions="dock:fill" class="PanelBackDrop"/>
+					<Group id="Summary_frame_title_MovableParent" dimensions="dock:fill"/>
+					<Text id="Summary_frame_title_TitleText" key="{Combat Details}" dimensions="top:0; left:0; right:100%; height:100%" style="alpha:0; font:UbuntuBold_8; halign:left; valign:center; drop-shadow:0; color:PanelTitle"/>
+					<FocusBox id="close_btn" dimensions="left:100%-23; width:23; top:0; bottom:100%" class="ui_button">
+						<Border dimensions="dock:fill" style="tint:000000; alpha:0.5; padding:5"/>
+						<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:16; height:16" style="texture:CD_Close; eatsmice:false"/>
+					</FocusBox>
+					<FocusBox id="clr_btn" dimensions="left:100%-46; width:23; top:0; bottom:100%" class="ui_button">
+						<Border dimensions="dock:fill" style="tint:000000; alpha:0.5; padding:5"/> 
+						<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:16; height:16" style="texture:CD_Trash; eatsmice:false"/>
+					</FocusBox>
+					<FocusBox id="dmg_btn" dimensions="left:100%-69; width:23; top:0; bottom:100%" class="ui_button">
+						<Border dimensions="dock:fill" style="tint:000000; alpha:0.5; padding:5"/>
+						<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:16; height:16" style="texture:CD_Single; eatsmice:false"/>
+					</FocusBox>
+					<FocusBox id="wl_btn" dimensions="left:100%-92; width:23; top:0; bottom:100%" class="ui_button">
+						<Border dimensions="dock:fill" style="tint:000000; alpha:0.5; padding:5"/>
+						<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:16; height:16" style="texture:CD_Star; eatsmice:false"/>
+					</FocusBox>
+				</Group>
+				<Group id="Summary_frame_body" dimensions="top:22; bottom:100%; width:100%; right:100%">
+					<Border name="border" dimensions="dock:fill" class="PanelBackDrop"/>
+					<Group id="Summary_frame_local_group" dimensions="top:2;bottom:100%-2;left:2;right:100%-2" style="clip-children:true">
+						<ListLayout id="Summary_Local_List" dimensions="dock:fill"/>
+					</Group>
+					<Group id="Summary_frame_sync_group" dimensions="top:2;bottom:100%-2;left:2;right:100%-2" style="clip-children:true">
+						<ListLayout id="Summary_Sync_List" dimensions="dock:fill"/>
+					</Group>
+					<Group id="Summary_frame_wl_group" dimensions="top:2;bottom:100%-2;left:2;right:100%-2" style="clip-children:true">
+						<Group name="OptionsGroup" dimensions="top:0;bottom:100%-22;left:0;right:100%" style="clip-children:true">
+							<Group name="group" dimensions="top:0;bottom:100%;left:0;right:100%" style="clip-children:true">
+								<ListLayout id="Summary_Wl_List" dimensions="dock:fill" style="vpadding:0;"/>
+							</Group>					
+						</Group>					
+						<Group name="SearchInput" dimensions="left:0; right:100%; bottom:100%; height:20">		
+							<Group name="bg" dimensions="left:0; right:100%-30; center-y:50%; height:100%" style="clip-children:true">
+								<Border dimensions="dock:fill" class="PanelBackDrop"/>
+								<TextInput name="TextInput" dimensions="dock:fill" style="font:UbuntuBold_8; valign:center; halign:left; texture:colors; region:transparent; maxlen:48; text-color:#DADADA"/>
+							</Group>
+							<FocusBox name="ClearSearchButton" dimensions="right:100%-10; center-y:50%; height:100%; width:20" style="cursor:sys_hand">
+								<Border dimensions="dock:fill" class="PanelBackDrop"/>
+								<StillArt name="X" dimensions="center-x:50%; center-y:50%; width:16; height:16" style="texture:CD_Add; eatsmice:false"/>
+							</FocusBox>
+						</Group>						
+					</Group>
+				</Group>
+				<Group id="ResizableParent" dimensions="bottom:100%; height:15; right:100%; width:15"/>
+			</Children>
+			<OnEscape bind="OnEscape"/>
+			
+		</PanelFrame>
+	</Frames>
+</Component>
